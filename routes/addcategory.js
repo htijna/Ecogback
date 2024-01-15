@@ -1,21 +1,29 @@
-const express = require("express");
-const router = express.Router();
+const app = require('express').Router();
+
 const CategoryModel = require("../model/category");
 
-router.post("/", (req, res) => {
-  const { name } = req.body;
+app.post('/categorynew', (request, response) => {
+ console.log(request.body)
+      new CategoryModel(request.body).save();
+      response.send("record saved")
+  });
 
-  const newCategory = new CategoryModel({ name });
 
-  newCategory
-    .save()
-    .then((result) => {
-      res.status(201).json({ message: "Category added successfully", category: result });
-    })
-    .catch((error) => {
-      console.error("Error adding category:", error);
-      res.status(500).json({ error: "Internal Server Error" });
-    });
-});
+// app.get('/catergoryview',async(request,response) =>{
 
-module.exports = router;
+//   const result =await Categorymodel.aggregate([
+//     {
+//     $lookup: {
+//       from: 'category',
+//       localField:'sid',
+//       foreignField:'_id',
+//       as:'category'
+
+//     }
+//   },
+//   ]);
+// })
+
+module.exports = app;
+
+
