@@ -9,20 +9,25 @@ app.post('/categorynew', (request, response) => {
   });
 
 
-// app.get('/catergoryview',async(request,response) =>{
+  app.get('/categoryview',async(request,response)=>{
+    var data = await CategoryModel.find();
+    response.send(data)
+});
 
-//   const result =await Categorymodel.aggregate([
-//     {
-//     $lookup: {
-//       from: 'category',
-//       localField:'sid',
-//       foreignField:'_id',
-//       as:'category'
 
-//     }
-//   },
-//   ]);
-// })
+app.put('/inactive/:id',async(request,response)=>{
+  let id = request.params.id
+  await CategoryModel.findByIdAndUpdate(id,{$set:{Status:"Inactive"}})
+  response.send("Record Deleted")
+})
+
+app.put('/active/:id',async(request,response)=>{
+  let id = request.params.id
+  await CategoryModel.findByIdAndUpdate(id,{$set:{Status:"Active"}})
+  response.send("Record Active")
+})
+
+
 
 module.exports = app;
 

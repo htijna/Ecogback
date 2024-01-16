@@ -23,7 +23,7 @@ app.get('/' ,(request, response) => {
 
 app.use("/category",categoryrouter)
 
-app.use("/productnew",productrouter)
+app.use("/product",productrouter)
 
 
 app.listen(5000,(request ,response) =>{

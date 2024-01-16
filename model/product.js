@@ -3,15 +3,27 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const productSchema = new Schema({
-  // Photo: String, // Assuming File is a string representing the file path or URL
+  Photo: {
+    data: {
+      type: Buffer,
+      default: Buffer.from([]), // Default empty Buffer
+    },
+    contentType: {
+      type: String,
+      default: 'image/jpeg', // Set your default content type
+    },
+  },
   Productname: String,
   Productprice: Number,
   Quantity: String,
   Expiredate: Date,
   Category: String,
-  Status:String,
+  Status: {
+    type: String,
+    default: 'Active', // Set your default status
+  },
 });
 
-var ProductModel = mongoose.model("Product", productSchema);
+const ProductModel = mongoose.model("Product", productSchema);
 
 module.exports = ProductModel;
