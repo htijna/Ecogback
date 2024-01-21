@@ -17,7 +17,7 @@ const productSchema = new Schema({
   Productprice: Number,
   Quantity: String,
   Expiredate: Date,
-  Category: String,
+  Cid:{type:mongoose.Schema.Types.ObjectId,ref:'categories'},
   Status: {
     type: String,
     default: 'Active', // Set your default status

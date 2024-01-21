@@ -6,7 +6,7 @@ const categorySchema = new Schema({
   Categoryname: String, 
   Status: {
     type: String,
-    default: 'ACTIVE', // Set your default status
+    default: 'Active', // Set your default status
   },
 });
 
