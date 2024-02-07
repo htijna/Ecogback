@@ -7,18 +7,33 @@ const storage = multer.memoryStorage(); // Store images in memory
 const upload = multer({ storage: storage });
 
 
-app.post('/productimg', upload.single('Photo'), async (request, response) => {
+app.post('/productnew', upload.single('Photo'), async (request, response) => {
     try {
+        // console.log(request.body)
+                const {
+                    Productname, 
+                    Productprice,
+                    Quantity,
+                    Expiredate,
+                    Cid,
+                    Status
+                   
+                }= request.body
                 
                 const newdata = new ProductModel({
-                  
+                    Productname, Productprice,
+                    Quantity,
+                    Expiredate,
+                    Cid,
+                    Status,        
                     Photo: {
                         data: request.file.buffer,
                         contentType: request.file.mimetype,
                     }
                 })
+                
                 await newdata.save();
-                res.status(200).json({ message: 'Photo added successfully' });
+                response.status(200).json({ message: 'Photo added successfully' });
         }
     catch (error) 
     {
@@ -31,16 +46,6 @@ app.post('/productimg', upload.single('Photo'), async (request, response) => {
 
 
 
-app.post('/productnew', (request, response) => {
-    console.log(request.body)
-         new ProductModel(request.body).save();
-         response.send("record saved")
-     });
-  
-     app.get('/productview',async(request,response)=>{
-        var data = await ProductModel.find();
-        response.send(data)
-    });
 
     app.put('/delete/:id',async(request,response)=>{
         let id = request.params.id
@@ -62,7 +67,20 @@ app.post('/productnew', (request, response) => {
         response.send("Record updated")
     })
     
+    app.get('/productview',async(request,response)=>{
+    const result = await ProductModel.aggregate([
+        {
+          $lookup: {
+            from: 'categories', // Name of the other collection
+            localField: 'Cid', // field of item
+            foreignField: '_id', //field of category
+            as: 'prod',
+          },
+        },
+      ]);
+    
+      response.send(result)
+    })
+    
 
 module.exports = app;
-
-

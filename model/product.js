@@ -4,14 +4,8 @@ const { Schema } = mongoose;
 
 const productSchema = new Schema({
   Photo: {
-    data: {
-      type: Buffer,
-      default: Buffer.from([]), // Default empty Buffer
-    },
-    contentType: {
-      type: String,
-      default: 'image/jpeg', // Set your default content type
-    },
+   data :Buffer,
+   contentType:String
   },
   Productname: String,
   Productprice: Number,
