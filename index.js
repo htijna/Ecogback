@@ -1,41 +1,35 @@
-const express = require("express");
-const cors = require("cors");
-const db=require('./Connection/Database')
+// index.js
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const db = require('./src/Connection/Database');
+const sellerAuthRoutes = require('./src/routes/sellerAuth');
+const categoryRouter = require('./src/routes/addcategory');
+const productRouter = require('./src/routes/productnew');
+const authRoutes = require('./src/routes/auth');
+const adminAuthRoutes = require('./src/routes/adminAuth'); // Import Admin authentication routes
+const ordersRouter = require('./src/routes/orders');
 
-
-const categoryrouter=require('./routes/addcategory')
-const productrouter = require('./routes/productnew')
-const authRoutes = require('./routes/auth');
-const bodyParser = require ('body-parser');
-
-const app = new express();
-
+const app = express();
 
 // Middleware
-app.use(cors()); // Enable CORS for all routes
+app.use(cors());
 app.use(bodyParser.json());
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
 
+app.get('/', (req, res) => {
+  res.send('Welcome');
+});
 
-app.get('/' ,(request, response) => {
-    response.send("Welcome ")
+app.use('/category', categoryRouter);
+app.use('/product', productRouter);
+app.use('/auth', authRoutes);
+app.use('/sellerAuth', sellerAuthRoutes);
+app.use('/adminAuth', adminAuthRoutes); // Use Admin authentication routes
+app.use('/orders', ordersRouter);
 
-})
-
-
-//category new
-
-app.use("/category",categoryrouter)
-
-app.use("/product",productrouter)
-
-
-app.use('/auth',authRoutes);
-
-app.listen(5000,(request ,response) =>{
-    console.log("port is running in 5000")
-})
-
+app.listen(5000, () => {
+  console.log('Server is running on port 5000');
+});
