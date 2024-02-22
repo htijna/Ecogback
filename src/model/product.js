@@ -10,12 +10,13 @@ const productSchema = new Schema({
   Productname: String,
   Productprice: Number,
   Quantity: String,
-  Expiredate: Date,
+  Description: String,
   Cid:{type:mongoose.Schema.Types.ObjectId,ref:'categories'},
   Status: {
     type: String,
     default: 'Active', // Set your default status
   },
+  
 });
 
 const ProductModel = mongoose.model("Product", productSchema);

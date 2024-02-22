@@ -15,18 +15,18 @@ app.post('/productnew', upload.single('Photo'), async (request, response) => {
                     Productname, 
                     Productprice,
                     Quantity,
-                    Expiredate,
                     Cid,
-                    Status
+                    Status, 
+                    Description
                    
                 }= request.body
                 
                 const newdata = new ProductModel({
                     Productname, Productprice,
                     Quantity,
-                    Expiredate,
                     Cid,
-                    Status,        
+                    Status, 
+                    Description,       
                     Photo: {
                         data: request.file.buffer,
                         contentType: request.file.mimetype,
@@ -86,7 +86,7 @@ app.post('/productnew', upload.single('Photo'), async (request, response) => {
     app.put('/editproduct/:id', upload.single('image'), async (request, response) => {
         try {
             const id = request.params.id;
-            const { Productname, Productprice, Quantity, Expiredate, Cid, Status } = request.body;
+            const { Productname, Productprice, Quantity, Cid, Status, Description } = request.body;
             let result = null;
             if (request.file) {
                 console.log("sdjfbjs");
@@ -94,9 +94,9 @@ app.post('/productnew', upload.single('Photo'), async (request, response) => {
                     Productname, 
                     Productprice,
                     Quantity,
-                    Expiredate,
                     Cid,
                     Status,
+                    Description,
                     Photo: {
                         data: request.file.buffer,
                         contentType: request.file.mimetype,
@@ -108,9 +108,9 @@ app.post('/productnew', upload.single('Photo'), async (request, response) => {
                     Productname, 
                     Productprice,
                     Quantity,
-                    Expiredate,
                     Cid,
-                    Status
+                    Status,
+                    Description
                 };
                 result = await ProductModel.findByIdAndUpdate(id, updatedData);
             }
