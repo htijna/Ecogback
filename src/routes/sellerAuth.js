@@ -33,21 +33,19 @@ router.post('/sellersignup', async (req, res) => {
 });
 
 // Seller login endpoint
+// Seller login endpoint
 router.post('/sellerlogin', async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Find the seller in the database
     const seller = await Seller.findOne({ email });
 
     if (!seller || !(await bcrypt.compare(password, seller.password))) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // Generate a JWT token
-    const token = jwt.sign({ email, role: 'seller' }, jwtConfig.seller.secretKey, { expiresIn: jwtConfig.seller.expiresIn });
+    const token = jwt.sign({ _id: seller._id, role: 'seller' }, jwtConfig.seller.secretKey, { expiresIn: jwtConfig.seller.expiresIn });
 
-    res.json({ token });
+    res.json({ token, _id: seller._id }); // Sending seller _id along with token
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal Server Error' });
@@ -79,6 +77,22 @@ router.post('/verifyToken', async (req, res) => {
 // Protected route for testing authentication
 router.get('/protected', authenticateSellerToken, (req, res) => {
   res.json({ message: 'Protected route accessed successfully' });
+});
+
+router.get('/profileview/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    console.log("Requested seller ID:", id); // Add console log to print requested ID
+    const data = await Seller.findById(id); // Corrected to findById
+    console.log("Retrieved data:", data); // Add console log to print retrieved data
+    if (!data) { // If no data found for the given ID
+      return res.status(404).json({ error: 'Seller not found' });
+    }
+    res.send(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 module.exports = router;

@@ -83,7 +83,8 @@ app.post('/productnew', upload.single('Photo'), async (request, response) => {
     //     await ProductModel.findByIdAndUpdate(id,request.body)
     //     response.send("Record updated")
     // })
-    app.put('/editproduct/:id', upload.single('image'), async (request, response) => {
+    app.put('/editproduct/:id', upload.single('Photo'), async (request, response) => {
+       
         try {
             const id = request.params.id;
             const { Productname, Productprice, Quantity, Cid, Status, Description } = request.body;

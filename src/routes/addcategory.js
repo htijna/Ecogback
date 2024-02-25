@@ -61,7 +61,15 @@ router.put('/active/:id', async (request, response) => {
     console.error(error);
     response.status(500).json({ error: 'Internal Server Error' });
   }
+
 });
+
+router.put('/cedit/:id',async(request,response)=>{
+  let id = request.params.id
+  await CategoryModel.findByIdAndUpdate(id,request.body)
+  response.send("Record updated")
+})
+
 
 module.exports = router;
 
