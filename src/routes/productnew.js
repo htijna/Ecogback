@@ -17,7 +17,8 @@ app.post('/productnew', upload.single('Photo'), async (request, response) => {
                     Quantity,
                     Cid,
                     Status, 
-                    Description
+                    Description,
+                    Sellerid
                    
                 }= request.body
                 
@@ -26,7 +27,8 @@ app.post('/productnew', upload.single('Photo'), async (request, response) => {
                     Quantity,
                     Cid,
                     Status, 
-                    Description,       
+                    Description,  
+                    Sellerid,     
                     Photo: {
                         data: request.file.buffer,
                         contentType: request.file.mimetype,

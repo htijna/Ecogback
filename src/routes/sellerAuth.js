@@ -79,19 +79,14 @@ router.get('/protected', authenticateSellerToken, (req, res) => {
   res.json({ message: 'Protected route accessed successfully' });
 });
 
+// Assuming you have something like this in your route handler
 router.get('/profileview/:id', async (req, res) => {
   try {
-    const id = req.params.id;
-    console.log("Requested seller ID:", id); // Add console log to print requested ID
-    const data = await Seller.findById(id); // Corrected to findById
-    console.log("Retrieved data:", data); // Add console log to print retrieved data
-    if (!data) { // If no data found for the given ID
-      return res.status(404).json({ error: 'Seller not found' });
-    }
-    res.send(data);
+    const seller = await Seller.findById(req.params.id); // Use req.params.id instead of ':id'
+    res.json(seller);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error('Error fetching seller profile:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
