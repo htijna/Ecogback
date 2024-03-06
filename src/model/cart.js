@@ -9,7 +9,12 @@ const cartSchema = new Schema({
   productName: String,
   productPrice: Number,
   productDescription: String,
-  productQuantity: Number
+  productQuantity: Number,
+  status: {
+    type: String,
+    enum: ['Order', 'Delivered', 'Ordered', 'Shipping', 'Cancelled', 'Pending'],
+    default: 'Order' // Set your default status
+  }
 });
 
 const CartModel = mongoose.model('Cart', cartSchema);

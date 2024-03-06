@@ -5,8 +5,8 @@ const CartModel = require("../model/cart");
 // Add a new item to the cart
 router.post('/cartnew', async (request, response) => {
     try {
-      const { productId, productName, productPrice,productDescription, productQuantity } = request.body;
-      const newItem = new CartModel({ productId, productName, productPrice, productDescription, productQuantity });
+      const { productId, productName, productPrice,productDescription, productQuantity ,status} = request.body;
+      const newItem = new CartModel({ productId, productName, productPrice, productDescription, productQuantity,status });
       await newItem.save();
       response.status(201).json({ message: 'Item added to cart' });
     } catch (error) {
@@ -40,6 +40,23 @@ router.delete('/remove/:id', async (request, response) => {
     return response.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
+
+// Clear the cart
+router.delete('/clear', async (req, res) => {
+  try {
+    // Find all items in the cart and remove them
+    await CartModel.deleteMany({});
+    res.status(200).json({ message: 'Cart cleared successfully' });
+  } catch (error) {
+    console.error('Error clearing cart:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+module.exports = router;
+
 
 
 module.exports = router;

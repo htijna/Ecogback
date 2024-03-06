@@ -3,8 +3,9 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../model/User'); // Import User model
-const jwtConfig = require('../Connection/jwt'); // Import JWT configuration
+const jwtConfig = require('../Connection/jwt.js'); // Import JWT configuration
 const { authenticateUserToken } = require("../middleware/userAuthMiddleware.js");
+const { generateUserToken } = require("../userUtils.js");
 
 // Signup endpoint
 router.post('/usersignup', async (req, res) => {
@@ -36,17 +37,16 @@ router.post('/usersignup', async (req, res) => {
 router.post('/userlogin', async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(email + " " + password);
-
+    
     // Find the user in the database
     const user = await User.findOne({ email });
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(404).json({ message: 'Invalid email or password' });
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ email, role: 'user' }, jwtConfig.user.secretKey, { expiresIn: jwtConfig.user.expiresIn });
+    const token = generateUserToken(user);
 
     res.json({ token });
   } catch (error) {
@@ -56,30 +56,37 @@ router.post('/userlogin', async (req, res) => {
 });
 
 // Token verification endpoint
-router.post('/verifyToken', async (req, res) => {
+router.post('/VerifyToken', async (req, res) => {
   const { token } = req.body;
 
   try {
     // Verify the token
-    jwt.verify(token, jwtConfig.user.secretKey, (err, decoded) => {
-      if (err) {
-        // Token is invalid or expired
-        return res.status(401).json({ success: false, message: 'Invalid token' });
-      } else {
-        // Token is valid
-        // You can perform additional checks here if needed, like checking if the user exists
-        res.status(200).json({ success: true, message: 'Token is valid' });
-      }
-    });
+    const decoded = jwt.verify(token, jwtConfig.user.secretKey);
+    
+    // Token is valid
+    // You can perform additional checks here if needed, like checking if the user exists
+    res.status(200).json({ success: true, message: 'Token is valid' });
   } catch (error) {
     console.error('Token verification failed:', error);
-    res.status(500).json({ success: false, message: 'Internal Server Error' });
+    res.status(401).json({ success: false, message: 'Invalid token' });
   }
 });
 
 // Protected route for testing authentication
 router.get('/protected', authenticateUserToken, (req, res) => {
   res.json({ message: 'Protected route accessed successfully' });
+});
+
+
+
+router.get('/userlog', async (req, res) => {
+  try {
+    const data = await User.find();
+    res.send(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 module.exports = router;

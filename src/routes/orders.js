@@ -1,4 +1,3 @@
-// routes/orders.js
 const express = require('express');
 const router = express.Router();
 const OrderModel = require('../model/order');
@@ -6,12 +5,12 @@ const OrderModel = require('../model/order');
 // Create a new order
 router.post('/neworder', async (req, res) => {
   try {
-    const { productId, productName, productPrice, productDescription, productQuantity } = req.body;
-    const newItem = new OrderModel({ productId, productName, productPrice, productDescription, productQuantity });
+    const { productId, productName, productPrice, productDescription, productQuantity, status } = req.body; // Corrected variable name
+    const newItem = new OrderModel({ productId, productName, productPrice, productDescription, productQuantity, status }); // Corrected variable name
     await newItem.save();
-    res.status(201).json({ message: 'Item added to cart' });
+    res.status(201).json({ message: 'Order added successfully' }); // Updated response message
   } catch (error) {
-    console.error('Error adding item to cart:', error);
+    console.error('Error adding order:', error); // Updated error message
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -26,5 +25,6 @@ router.get('/vieworder', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 module.exports = router;

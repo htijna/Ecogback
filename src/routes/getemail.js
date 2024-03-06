@@ -1,10 +1,6 @@
 const express = require('express');
-const app = express.Router(); // Define app as an instance of Express Router
-const EmailModel = require("../model/email");
 const router = express.Router();
-
-
-
+const EmailModel = require("../model/email");
 
 router.post('/emailnew', (request, response) => {
   console.log(request.body);
@@ -30,4 +26,4 @@ router.get('/emailview', async (request, response) => {
   }
 });
 
-module.exports = app;
+module.exports = router;

@@ -11,7 +11,7 @@ const adminAuthRoutes = require('./src/routes/adminAuth'); // Import Admin authe
 const ordersRouter = require('./src/routes/orders');
 const emailRouter = require('./src/routes/getemail');
 const addcartRouter =require('./src/routes/addcart');
-
+const sellerviewRouter =require('./src/routes/sellervieworder');
 
 const app = express();
 
@@ -29,11 +29,12 @@ app.get('/', (request, response) => {
 app.use('/category', categoryRouter);
 app.use('/product', productRouter);
 app.use('/auth', authRoutes);
-app.use('/sellerAuth', sellerAuthRoutes);
+app.use('/sauth', sellerAuthRoutes);
 app.use('/adminAuth', adminAuthRoutes); // Use Admin authentication routes
 app.use('/ordered', ordersRouter);
 app.use('/email', emailRouter);
 app.use('/cart', addcartRouter);
+app.use('/sellerview',sellerviewRouter);
 
 app.listen(5000, () => {
   console.log('Server is running on port 5000');
