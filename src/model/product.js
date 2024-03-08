@@ -23,7 +23,9 @@ const productSchema = new Schema({
   Status: {
     type: String,
     default: "Active" // Set your default status
-  }
+  },
+  // Sellerid: { type: mongoose.Schema.Types.ObjectId, ref: 'sellers' },
+
 });
 
 const ProductModel = mongoose.model("Product", productSchema);
