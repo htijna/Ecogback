@@ -16,15 +16,27 @@ router.post('/cartnew', async (request, response) => {
   });
 
 // Get all cart items
-router.get('/viewcart', async (request, response) => {
+router.get('/viewcart', async (req, res) => {
   try {
-    const cartItems = await CartModel.find();
-    response.json(cartItems);
+    const userId = req.query.userId; // Assuming you want to fetch cart items for a specific seller
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required' });
+    }
+
+    const cartItems = await CartModel.find({ userId: userId}); // Fetch cart items for the specified seller
+    if (cartItems.length === 0) {
+      return res.status(404).json({ message: 'No cart items found for this user' });
+    }
+
+    res.status(200).json(cartItems);
   } catch (error) {
     console.error('Error fetching cart items:', error);
-    response.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
+
 
 // Remove an item from the cart
 router.delete('/remove/:id', async (request, response) => {

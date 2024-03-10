@@ -5,6 +5,7 @@ const { Schema } = mongoose;
 const productSchema = new Schema({
   sellerId: {
     type: mongoose.Schema.Types.ObjectId,
+    ref: "Seller" // Assuming "Seller" is the name of your seller model
   },
   Photo: {
     data: Buffer,
@@ -24,9 +25,9 @@ const productSchema = new Schema({
   },
 });
 
-// Ensure that the 'seller' field is populated with the corresponding seller document
+// Ensure that the 'sellerId' field is populated with the corresponding seller document
 productSchema.pre('findOne', function (next) {
-  this.populate('seller');
+  this.populate('sellerId');
   next();
 });
 

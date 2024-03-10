@@ -68,11 +68,10 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
 
     
 
-  
     app.get('/productview', async (request, response) => {
         try {
             // Retrieve the sellerId from the request headers or wherever it's available
-            const sellerId = request.headers.sellerId; // Adjust this according to your authentication method
+            const sellerId = request.headers.sellerid; // Adjust this according to your authentication method
     
             // Ensure that sellerId is available
             if (!sellerId) {
@@ -80,37 +79,21 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
             }
     
             // Find products associated with the sellerId
-            const result = await ProductModel.aggregate([
-                {
-                    $match: {
-                        sellerId: mongoose.Types.ObjectId(sellerId) // Convert sellerId to ObjectId type
-                    }
-                },
-                {
-                    $lookup: {
-                        from: 'categories',
-                        localField: 'Cid',
-                        foreignField: '_id',
-                        as: 'prod',
-                    },
-                },
-                {
-                    $lookup: {
-                        from: 'sellers',
-                        localField: 'Sid',
-                        foreignField: '_id',
-                        as: 'selldetails'
-                    }
-                }
-            ]);
+            const products = await ProductModel.find({ sellerId: sellerId }).populate('Cid').populate('Photo');
+            
+            if (products.length === 0) {
+                return response.status(404).json({ message: 'No products found for this seller' });
+            }
     
-            response.send(result);
+            response.status(200).json(products);
         } catch (error) {
             console.error(error);
             response.status(500).json({ error: 'Internal Server Error' });
         }
     });
     
+    
+
     
     // app.put('/editproduct/:id',async(request,response)=>{
     //     let id = request.params.id
@@ -191,6 +174,22 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
             response.status(500).json({ error: 'Internal Server Error' });
         }
     });
+
+
+    app.get('/userallproduct',async(request,response)=>{
+        const result = await ProductModel.aggregate([
+            {
+              $lookup: {
+                from: 'categories', // Name of the other collection
+                localField: 'Cid', // field of item
+                foreignField: '_id', //field of category
+                as: 'prod',
+              },
+            },
+          ]);
+        
+          response.send(result)
+        })
     
     
 module.exports = app;
