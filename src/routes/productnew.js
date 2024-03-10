@@ -27,10 +27,10 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
             return res.status(400).json({ error: 'SellerId is required' });
         }
 
-        console.log("SellerId:", sellerId); // Print the seller's ID in the console
+        console.log("sellerId:", sellerId); // Print the seller's ID in the console
 
         const newProduct = new ProductModel({
-            seller: sellerId, // Assigning the seller ID to the product
+            sellerId, // Assigning the seller ID to the product
             Productname,
             Productprice,
             Quantity,
@@ -69,30 +69,48 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
     
 
   
-    app.get('/productview',async(request,response)=>{
-    const result = await ProductModel.aggregate([
-        {
-          $lookup: {
-            from: 'categories', // Name of the other collection
-            localField: 'Cid', // field of item
-            foreignField: '_id', //field of category
-            as: 'prod',
-
-          },
-
-        },
-        {
-            $lookup:{
-            from: 'sellers',
-            localField:'Sid',
-            foreignField:'_id',
-            as :'selldetails'
-
-        }}
-      ]);
+    app.get('/productview', async (request, response) => {
+        try {
+            // Retrieve the sellerId from the request headers or wherever it's available
+            const sellerId = request.headers.sellerId; // Adjust this according to your authentication method
     
-      response.send(result)
-    })
+            // Ensure that sellerId is available
+            if (!sellerId) {
+                return response.status(400).json({ error: 'SellerId is required' });
+            }
+    
+            // Find products associated with the sellerId
+            const result = await ProductModel.aggregate([
+                {
+                    $match: {
+                        sellerId: mongoose.Types.ObjectId(sellerId) // Convert sellerId to ObjectId type
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'categories',
+                        localField: 'Cid',
+                        foreignField: '_id',
+                        as: 'prod',
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'sellers',
+                        localField: 'Sid',
+                        foreignField: '_id',
+                        as: 'selldetails'
+                    }
+                }
+            ]);
+    
+            response.send(result);
+        } catch (error) {
+            console.error(error);
+            response.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
+    
     
     // app.put('/editproduct/:id',async(request,response)=>{
     //     let id = request.params.id

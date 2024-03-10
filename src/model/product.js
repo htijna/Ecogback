@@ -3,9 +3,8 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const productSchema = new Schema({
-  seller: {
+  sellerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Seller", // Reference to the Seller model
   },
   Photo: {
     data: Buffer,
