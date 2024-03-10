@@ -5,8 +5,8 @@ const CartModel = require("../model/cart");
 // Add a new item to the cart
 router.post('/cartnew', async (request, response) => {
     try {
-      const { productId, productName, productPrice,productDescription, productQuantity ,status} = request.body;
-      const newItem = new CartModel({ productId, productName, productPrice, productDescription, productQuantity,status });
+      const { productId,userId, productName, productPrice,productDescription, productQuantity ,status} = request.body;
+      const newItem = new CartModel({ productId,userId, productName, productPrice, productDescription, productQuantity,status });
       await newItem.save();
       response.status(201).json({ message: 'Item added to cart' });
     } catch (error) {

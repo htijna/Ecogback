@@ -6,6 +6,10 @@ const sellerorderSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true
   },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true
+  },
   productName: String,
   productPrice: Number,
   productDescription: String,

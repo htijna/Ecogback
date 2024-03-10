@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const sellerSchema = new mongoose.Schema({
+  
   name: {
     type: String,
     required: true,
@@ -22,6 +23,10 @@ const sellerSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  //  Order: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: "Orders"
+  // },
  
 });
 

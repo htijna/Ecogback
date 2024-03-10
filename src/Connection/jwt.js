@@ -1,4 +1,3 @@
-///src//connection/jwt.js
 module.exports = {
   user: {
     secretKey: 'fnsiol4va0a32', // Replace with a strong, secret key
@@ -13,4 +12,3 @@ module.exports = {
     expiresIn: '1h', // Token expiration time (e.g., 1 hour)
   }
 }
-

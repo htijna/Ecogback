@@ -7,10 +7,11 @@ const multer = require('multer');
 const storage = multer.memoryStorage(); // Store images in memory
 const upload = multer({ storage: storage });
 
+
 app.post('/productnew', upload.single('Photo'), async (req, res) => {
     try {
         const {
-            SellerId, // Assuming this is the seller ID provided in the request
+            sellerId,
             Productname,
             Productprice,
             Quantity,
@@ -19,13 +20,17 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
             Description
         } = req.body;
 
+      
+        
         // Check if SellerId is provided
-        if (!SellerId) {
+        if (!sellerId) {
             return res.status(400).json({ error: 'SellerId is required' });
         }
 
+        console.log("SellerId:", sellerId); // Print the seller's ID in the console
+
         const newProduct = new ProductModel({
-            seller: SellerId, // Assigning the seller ID to the product
+            seller: sellerId, // Assigning the seller ID to the product
             Productname,
             Productprice,
             Quantity,
@@ -45,9 +50,6 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-
-
-
 
 
 
@@ -75,8 +77,18 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
             localField: 'Cid', // field of item
             foreignField: '_id', //field of category
             as: 'prod',
+
           },
+
         },
+        {
+            $lookup:{
+            from: 'sellers',
+            localField:'Sid',
+            foreignField:'_id',
+            as :'selldetails'
+
+        }}
       ]);
     
       response.send(result)

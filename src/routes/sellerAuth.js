@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const Seller = require('../model/Seller'); // Import Seller model
-const jwtConfig = require('../Connection/jwt'); // Import JWT configuration
+const Seller = require('../model/Seller');
+ 
 const { authenticateSellerToken } = require("../middleware/sellerAuthMiddleware");
 
 // Seller signup endpoint
@@ -32,73 +32,53 @@ router.post('/sellersignup', async (req, res) => {
   }
 });
 
-// Seller login endpoint
 router.post('/sellerlogin', async (req, res) => {
+  const { email, password } = req.body;
+
   try {
-    const { email, password } = req.body;
-
-    // Find the seller in the database
+    // Check if user exists
     const seller = await Seller.findOne({ email });
-
-    if (!seller || !(await bcrypt.compare(password, seller.password))) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+    if (!seller) {
+      return res.status(404).json({ message: 'Seller not found. Please check your email or sign up.' });
     }
 
-    // Generate a JWT token
-    const token = jwt.sign({ _id: seller._id, email, role: 'seller' }, jwtConfig.seller.secretKey, { expiresIn: jwtConfig.seller.expiresIn });
+    // Validate password
+    const isPasswordValid = await bcrypt.compare(password, seller.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid password. Please try again.' });
+    }
 
-    res.json({ _id: seller._id, token });
+    // Generate JWT token
+    const token = jwt.sign({ sellerId: seller._id }, 'your_secret_key', { expiresIn: '1h' });
+
+    // Send response with user details and token
+    res.status(200).json({ sellerId: seller._id, name: seller.name, token }); // Include user's name in response
+  } catch (error) {
+    console.error('Seller login failed:', error);
+    res.status(500).json({ message: 'An unexpected error occurred. Please try again later.' });
+  }
+});
+
+
+
+// Seller profile endpoint
+router.get('/sellerprofile/:id', authenticateSellerToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const profile = await Seller.findById(id);
+
+    if (!profile) {
+      return res.status(404).json({ error: 'Seller not found' });
+    }
+
+    res.json(profile);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-
-// Token verification endpoint
-router.post('/verifyToken', async (req, res) => {
-  const { token } = req.body;
-
-  try {
-    // Verify the token
-    jwt.verify(token, jwtConfig.seller.secretKey, (err, decoded) => {
-      if (err) {
-        // Token is invalid or expired
-        return res.status(401).json({ success: false, message: 'Invalid token' });
-      } else {
-        // Token is valid
-        // You can perform additional checks here if needed, like checking if the seller exists
-        res.status(200).json({ success: true, message: 'Token is valid' });
-      }
-    });
-  } catch (error) {
-    console.error('Token verification failed:', error);
-    res.status(500).json({ success: false, message: 'Internal Server Error' });
-  }
-});
-
-// Protected route for testing authentication
-router.get('/protected', authenticateSellerToken, (req, res) => {
-  res.json({ message: 'Protected route accessed successfully' });
-});
-
-
-// Seller profile view endpoint
-router.get('/profileview/:id', async (req, res) => {
-  try {
-    const seller = await Seller.findById(req.params.id);
-    if (!seller) {
-      return res.status(404).json({ message: 'Seller not found' });
-    }
-    res.json(seller);
-  } catch (error) {
-    console.error('Error fetching seller profile:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-});
-
-
-
+// Get all sellers
 router.get('/sellerlog', async (req, res) => {
   try {
     const data = await Seller.find();
@@ -110,3 +90,5 @@ router.get('/sellerlog', async (req, res) => {
 });
 
 module.exports = router;
+
+

@@ -5,8 +5,8 @@ const OrderModel = require('../model/order');
 // Create a new order
 router.post('/neworder', async (req, res) => {
   try {
-    const { productId, productName, productPrice, productDescription, productQuantity, status } = req.body; // Corrected variable name
-    const newItem = new OrderModel({ productId, productName, productPrice, productDescription, productQuantity, status }); // Corrected variable name
+    const { productId,  userId,productName, productPrice, productDescription, productQuantity, status } = req.body; // Corrected variable name
+    const newItem = new OrderModel({ productId, userId, productName, productPrice, productDescription, productQuantity, status }); // Corrected variable name
     await newItem.save();
     res.status(201).json({ message: 'Order added successfully' }); // Updated response message
   } catch (error) {

@@ -6,7 +6,6 @@ const productSchema = new Schema({
   seller: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Seller", // Reference to the Seller model
-    required: true
   },
   Photo: {
     data: Buffer,
@@ -24,8 +23,12 @@ const productSchema = new Schema({
     type: String,
     default: "Active" // Set your default status
   },
-  // Sellerid: { type: mongoose.Schema.Types.ObjectId, ref: 'sellers' },
+});
 
+// Ensure that the 'seller' field is populated with the corresponding seller document
+productSchema.pre('findOne', function (next) {
+  this.populate('seller');
+  next();
 });
 
 const ProductModel = mongoose.model("Product", productSchema);
