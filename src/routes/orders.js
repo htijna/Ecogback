@@ -5,8 +5,9 @@ const OrderModel = require('../model/order');
 // Create a new order
 router.post('/neworder', async (req, res) => {
   try {
-    const { productId,  userId,productName, productPrice, productDescription, productQuantity, status } = req.body; // Corrected variable name
-    const newItem = new OrderModel({ productId, userId, productName, productPrice, productDescription, productQuantity, status }); // Corrected variable name
+    const { productId,  sellerId,userId,productName, productPrice, productDescription, productQuantity, status } = req.body; // Corrected variable name
+    console.log(req.body);
+    const newItem = new OrderModel({ productId, sellerId, userId, productName, productPrice, productDescription, productQuantity, status }); // Corrected variable name
     await newItem.save();
     res.status(201).json({ message: 'Order added successfully' }); // Updated response message
   } catch (error) {
@@ -25,6 +26,8 @@ router.get('/vieworder', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
 
 
 module.exports = router;

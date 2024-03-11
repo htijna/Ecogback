@@ -20,6 +20,8 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
             Description
         } = req.body;
 
+        console.log('data',req.body);
+
       
         
         // Check if SellerId is provided
@@ -45,6 +47,7 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
 
         await newProduct.save();
         res.status(200).json({ message: 'Product added successfully' });
+        console.log(newProduct);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });

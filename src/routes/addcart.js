@@ -5,9 +5,10 @@ const CartModel = require("../model/cart");
 // Add a new item to the cart
 router.post('/cartnew', async (request, response) => {
     try {
-      const { productId,userId, productName, productPrice,productDescription, productQuantity ,status} = request.body;
-      const newItem = new CartModel({ productId,userId, productName, productPrice, productDescription, productQuantity,status });
+      const { productId,userId,sellerId, productName, productPrice,productDescription, productQuantity ,status} = request.body;
+      const newItem = new CartModel({ productId,userId, sellerId, productName, productPrice, productDescription, productQuantity,status });
       await newItem.save();
+      console.log(newItem)
       response.status(201).json({ message: 'Item added to cart' });
     } catch (error) {
       console.error('Error adding item to cart:', error);
@@ -67,8 +68,38 @@ router.delete('/clear', async (req, res) => {
   }
 });
 
-module.exports = router;
 
+
+
+router.put('/cart/increment/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      // Find the cart item by its ID and increment its quantity
+      const updatedCartItem = await CartModel.findByIdAndUpdate(id, { $inc: { productQuantity: 1 } }, { new: true });
+      res.json(updatedCartItem);
+  } catch (error) {
+      console.error('Error incrementing item quantity:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Decrement quantity of a cart item
+router.put('/cart/decrement/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      // Find the cart item by its ID and decrement its quantity, ensuring it doesn't go below 1
+      const updatedCartItem = await CartModel.findByIdAndUpdate(id, { $inc: { productQuantity: -1 } }, { new: true });
+      // Ensure the quantity doesn't go below 1
+      if (updatedCartItem.productQuantity < 1) {
+          updatedCartItem.productQuantity = 1;
+          await updatedCartItem.save();
+      }
+      res.json(updatedCartItem);
+  } catch (error) {
+      console.error('Error decrementing item quantity:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 
 module.exports = router;

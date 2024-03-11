@@ -6,7 +6,7 @@ const SellerorderModel = require('../model/sellerorder');
 
 router.post('/orderseller', async (req, res) => {
     try {
-      const { productId,userId, productName, productPrice, productDescription, productQuantity, status } = req.body;
+      const { productId,userId,sellerId, productName, productPrice, productDescription, productQuantity, status } = req.body;
       
       // Check if productId is provided
       if (!productId) {
@@ -14,7 +14,7 @@ router.post('/orderseller', async (req, res) => {
       }
 
       // Create a new order
-      const newItem = new SellerorderModel({ productId,userId, productName, productPrice, productDescription, productQuantity, status });
+      const newItem = new SellerorderModel({ productId,userId,sellerId, productName, productPrice, productDescription, productQuantity, status });
       console.log('saved', newItem);
       await newItem.save();
       res.status(201).json({ message: 'Order added successfully' });
@@ -25,16 +25,45 @@ router.post('/orderseller', async (req, res) => {
 });
 
   
-  router.get('/sellervieworder', async (req, res) => {
-    try {
-      
-      const orders = await SellerorderModel.find();
-      res.json(orders);
-    } catch (error) {
+router.get('/sellervieworder', async (req, res) => {
+  try {
+      const sellerId = req.query.sellerId;
+      if (!sellerId) {
+          return res.status(400).json({ message: 'Seller ID is required' });
+      }
+
+      const orders = await SellerorderModel.find({ sellerId: sellerId });
+      if (orders.length === 0) {
+          return res.status(404).json({ message: 'No orders found for this seller' });
+      }
+
+      res.status(200).json(orders);
+  } catch (error) {
       console.error('Error fetching orders:', error);
       res.status(500).json({ error: 'Internal server error' });
-    }
-  });
+  }
+});
+
+  router.get('/myorder', async (req, res) => {
+    try {
+      const userId = req.query.userId;
+      if (!userId) {
+          return res.status(400).json({ message: 'UserID is required' });
+      }
+
+      const orders = await SellerorderModel.find({ userId: userId });
+      if (orders.length === 0) {
+          return res.status(404).json({ message: 'No orders found ' });
+      }
+
+      res.status(200).json(orders);
+  } catch (error) {
+      console.error('Error fetching orders:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+  
+  
 
 
   router.put('/acceptorder/:orderId', async (req, res) => {
@@ -128,6 +157,8 @@ router.get('/markasdelivered/:orderId', async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     }
   });
+
+
   
   
 
