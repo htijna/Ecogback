@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const SellerorderModel = require('../model/sellerorder');
-
+const User = require('../model/User');
 
 
 router.post('/orderseller', async (req, res) => {
@@ -14,7 +14,19 @@ router.post('/orderseller', async (req, res) => {
       }
 
       // Create a new order
-      const newItem = new SellerorderModel({ productId,userId,sellerId, productName, productPrice, productDescription, productQuantity, status });
+      const newItem = new SellerorderModel({ productId,
+        userId,
+        sellerId,
+         productName,
+          productPrice,
+           productDescription,
+         productQuantity,
+          status , 
+           orderDate: Date.now(),
+           });
+
+           await newItem.save();
+
       console.log('saved', newItem);
       await newItem.save();
       res.status(201).json({ message: 'Order added successfully' });
@@ -25,24 +37,35 @@ router.post('/orderseller', async (req, res) => {
 });
 
   
+
 router.get('/sellervieworder', async (req, res) => {
   try {
-      const sellerId = req.query.sellerId;
-      if (!sellerId) {
-          return res.status(400).json({ message: 'Seller ID is required' });
-      }
+    const sellerId = req.query.sellerId;
+    console.log('Received sellerId:', sellerId); // Log received sellerId
+    if (!sellerId) {
+      return res.status(400).json({ message: 'Seller ID is required' });
+    }
 
-      const orders = await SellerorderModel.find({ sellerId: sellerId });
-      if (orders.length === 0) {
-          return res.status(404).json({ message: 'No orders found for this seller' });
-      }
+    const orders = await SellerorderModel.find({ sellerId: sellerId }).populate('userId');
+    if (orders.length === 0) {
+      return res.status(404).json({ message: 'No orders found for this seller' });
+    }
 
-      res.status(200).json(orders);
+    const ordersWithUserDetails = await Promise.all(orders.map(async order => {
+      const user = await User.findById(order.userId);
+      return {
+        ...order.toJSON(),
+        user: user // Assuming the userId field is a reference to the User model
+      };
+    }));
+
+    res.status(200).json(ordersWithUserDetails);
   } catch (error) {
-      console.error('Error fetching orders:', error);
-      res.status(500).json({ error: 'Internal server error' });
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
   router.get('/myorder', async (req, res) => {
     try {
@@ -145,6 +168,17 @@ router.get('/markasdelivered/:orderId', async (req, res) => {
     }
   });
 
+  router.get('/markascompleted/:orderId', async (req, res) => {
+    try {
+      const orderId = req.params.orderId;
+      await SellerorderModel.findByIdAndUpdate(orderId, { status: 'Completed' });
+      res.json({ message: 'Order marked as complete successfully' });
+    } catch (error) {
+      console.error('Error marking order as completed:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
 
   router.post('/updatequantity', async (req, res) => {
     try {
@@ -159,7 +193,7 @@ router.get('/markasdelivered/:orderId', async (req, res) => {
   });
 
 
-  
+
   
 
 

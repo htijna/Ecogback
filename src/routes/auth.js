@@ -59,10 +59,16 @@ router.post('/userlogin', async (req, res) => {
   }
 });
 
-// Protected route example (requires authentication)
-router.get('/userprofile/:id', authenticateUserToken, async (req, res) => {
+router.get('/userprofile', async (req, res) => {
   try {
-    const userProfile = await User.findById(req.userId);
+    // Assuming you have some way to extract userId from the request
+    const userId = req.query.userId;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+
+    const userProfile = await User.findById(userId);
 
     if (!userProfile) {
       return res.status(404).json({ error: 'User not found' });
@@ -74,6 +80,7 @@ router.get('/userprofile/:id', authenticateUserToken, async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 // Get all users (Just for testing, consider removing it or protecting it in production)
 router.get('/userlog', async (req, res) => {

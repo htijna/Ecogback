@@ -2,6 +2,7 @@ const app = require('express').Router();
 const { request, response } = require('express');
 const ProductModel = require("../model/product");
 const multer = require('multer');
+const mongoose = require('mongoose');
 
 
 const storage = multer.memoryStorage(); // Store images in memory
@@ -70,30 +71,26 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
     })
 
     
-
-    app.get('/productview', async (request, response) => {
+    app.get('/productview', async (req, res) => {
         try {
-            // Retrieve the sellerId from the request headers or wherever it's available
-            const sellerId = request.headers.sellerid; // Adjust this according to your authentication method
-    
-            // Ensure that sellerId is available
+            const sellerId = req.query.sellerId;
             if (!sellerId) {
-                return response.status(400).json({ error: 'SellerId is required' });
+                return res.status(400).json({ message: 'Seller ID is required' });
             }
     
-            // Find products associated with the sellerId
             const products = await ProductModel.find({ sellerId: sellerId }).populate('Cid').populate('Photo');
-            
             if (products.length === 0) {
-                return response.status(404).json({ message: 'No products found for this seller' });
+                return res.status(404).json({ message: 'No products found for this seller' });
             }
     
-            response.status(200).json(products);
+            res.status(200).json(products);
         } catch (error) {
             console.error(error);
-            response.status(500).json({ error: 'Internal Server Error' });
+            res.status(500).json({ error: 'Internal Server Error' });
         }
     });
+
+
     
     
 
@@ -104,49 +101,53 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
     //     response.send("Record updated")
     // })
     app.put('/editproduct/:id', upload.single('Photo'), async (request, response) => {
-       
         try {
-            const id = request.params.id;
-            const { Productname, Productprice, Quantity, Cid, Status, Description } = request.body;
-            let result = null;
-            if (request.file) {
-                console.log("sdjfbjs");
-                const updatedData = {
-                    Productname, 
-                    Productprice,
-                    Quantity,
-                    Cid,
-                    Status,
-                    Description,
-                    Photo: {
-                        data: request.file.buffer,
-                        contentType: request.file.mimetype,
-                    }
-                };
-                result = await ProductModel.findByIdAndUpdate(id, updatedData);
-            } else {
-                const updatedData = {
-                    Productname, 
-                    Productprice,
-                    Quantity,
-                    Cid,
-                    Status,
-                    Description
-                };
-                result = await ProductModel.findByIdAndUpdate(id, updatedData);
-            }
-    
-            if (!result) {
-                return response.status(404).json({ message: 'Item not found' });
-            }
-    
-            response.status(200).json({ message: 'Item updated successfully', data: result });
+          const id = request.params.id;
+          const { Productname, Productprice, Quantity, Cid, Status, Description } = request.body;
+          let result = null;
+      
+          // Check if Cid is a valid ObjectId
+          if (!mongoose.Types.ObjectId.isValid(Cid)) {
+            return response.status(400).json({ message: 'Invalid Cid provided' });
+          }
+      
+          if (request.file) {
+            const updatedData = {
+              Productname, 
+              Productprice,
+              Quantity,
+              Cid: mongoose.Types.ObjectId(Cid), // Convert Cid to ObjectId
+              Status,
+              Description,
+              Photo: {
+                data: request.file.buffer,
+                contentType: request.file.mimetype,
+              }
+            };
+            result = await ProductModel.findByIdAndUpdate(id, updatedData);
+          } else {
+            const updatedData = {
+              Productname, 
+              Productprice,
+              Quantity,
+              Cid: mongoose.Types.ObjectId(Cid), // Convert Cid to ObjectId
+              Status,
+              Description
+            };
+            result = await ProductModel.findByIdAndUpdate(id, updatedData);
+          }
+      
+          if (!result) {
+            return response.status(404).json({ message: 'Item not found' });
+          }
+      
+          response.status(200).json({ message: 'Item updated successfully', data: result });
         } catch (error) {
-            console.error(error);
-            response.status(500).json({ error: 'Internal Server Error' });
+          console.error(error);
+          response.status(500).json({ error: 'Internal Server Error' });
         }
-    });
-
+      });
+      
     app.get('/adminproductview', async (request, response) => {
         try {
             const result = await ProductModel.aggregate([

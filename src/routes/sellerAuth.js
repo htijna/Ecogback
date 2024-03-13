@@ -62,16 +62,22 @@ router.post('/sellerlogin', async (req, res) => {
 
 
 // Seller profile endpoint
-router.get('/sellerprofile/:id', authenticateSellerToken, async (req, res) => {
+router.get('/sellerprofile', async (req, res) => {
   try {
-    const { id } = req.params;
-    const profile = await Seller.findById(id);
+    // Assuming you have some way to extract userId from the request
+    const sellerId = req.query.sellerId;
 
-    if (!profile) {
+    if (!sellerId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+
+    const sellerProfile = await Seller.findById(sellerId);
+
+    if (!sellerProfile) {
       return res.status(404).json({ error: 'Seller not found' });
     }
 
-    res.json(profile);
+    res.json(sellerProfile);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
