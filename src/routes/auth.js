@@ -82,6 +82,36 @@ router.get('/userprofile', async (req, res) => {
 });
 
 
+router.put('/edituser/:id', async (req, res) => {
+  try {
+    const userId = req.params.id; // Get the user ID from request params
+    const { name, email, phone, address } = req.body;
+
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Update the user's profile fields
+    user.name = name;
+    user.email = email;
+    user.phone = phone;
+    user.address = address;
+
+    // Save the updated user
+    const updatedUser = await user.save();
+
+    res.json({ message: 'User profile updated successfully', user: updatedUser });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
+
 // Get all users (Just for testing, consider removing it or protecting it in production)
 router.get('/userlog', async (req, res) => {
   try {

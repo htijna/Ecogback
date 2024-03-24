@@ -100,84 +100,132 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
     //     await ProductModel.findByIdAndUpdate(id,request.body)
     //     response.send("Record updated")
     // })
-    app.put('/editproduct/:id', upload.single('Photo'), async (request, response) => {
-        try {
-          const id = request.params.id;
-          const { Productname, Productprice, Quantity, Cid, Status, Description } = request.body;
-          let result = null;
-      
-          // Check if Cid is a valid ObjectId
-          if (!mongoose.Types.ObjectId.isValid(Cid)) {
-            return response.status(400).json({ message: 'Invalid Cid provided' });
-          }
-      
-          if (request.file) {
-            const updatedData = {
-              Productname, 
-              Productprice,
-              Quantity,
-              Cid: mongoose.Types.ObjectId(Cid), // Convert Cid to ObjectId
-              Status,
-              Description,
-              Photo: {
-                data: request.file.buffer,
-                contentType: request.file.mimetype,
-              }
-            };
-            result = await ProductModel.findByIdAndUpdate(id, updatedData);
-          } else {
-            const updatedData = {
-              Productname, 
-              Productprice,
-              Quantity,
-              Cid: mongoose.Types.ObjectId(Cid), // Convert Cid to ObjectId
-              Status,
-              Description
-            };
-            result = await ProductModel.findByIdAndUpdate(id, updatedData);
-          }
-      
-          if (!result) {
-            return response.status(404).json({ message: 'Item not found' });
-          }
-      
-          response.status(200).json({ message: 'Item updated successfully', data: result });
-        } catch (error) {
-          console.error(error);
-          response.status(500).json({ error: 'Internal Server Error' });
-        }
-      });
-      
-    app.get('/adminproductview', async (request, response) => {
-        try {
-            const result = await ProductModel.aggregate([
-                {
-                    $lookup: {
-                        from: 'categories',
-                        localField: 'Cid',
-                        foreignField: '_id',
-                        as: 'category',
-                    },
-                },
-                {
-                    $lookup: {
-                        from: 'sellers',
-                        localField: 'seller',
-                        foreignField: '_id',
-                        as: 'seller',
-                    },
-                },
-            ]);
-    
-            // Log the result to the console
-        ;
-    
-            response.send(result);
-        } catch (error) {
-            console.error(error);
-            response.status(500).json({ error: 'Internal Server Error' });
-        }
-    });
+   // PUT /product/editproduct/:id - Edit a product
+ // productnew.js
+app.put('/editproduct/:id', upload.single('Photo'), async (request, response) => {
+  try {
+    const id = request.params.id;
+    const { Productname, Productprice, Quantity, Cid, Status, Description } = request.body;
+
+    // Check if Cid is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(Cid)) {
+      return response.status(400).json({ message: 'Invalid Cid provided' });
+    }
+
+    // Prepare updated data for the product
+    const updatedData = {
+      Productname,
+      Productprice,
+      Quantity,
+      Cid: new mongoose.Types.ObjectId(Cid), // Convert Cid to ObjectId
+      Status,
+      Description
+    };
+
+    // Add Photo data if provided
+    if (request.file) {
+      updatedData.Photo = {
+        data: request.file.buffer,
+        contentType: request.file.mimetype,
+      };
+    }
+
+    // Find and update the product document
+    const result = await ProductModel.findByIdAndUpdate(id, updatedData);
+
+    // Handle result and send response
+    if (!result) {
+      return response.status(404).json({ message: 'Item not found' });
+    }
+    response.status(200).json({ message: 'Item updated successfully', data: result });
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
+app.put('/editphoto/:id', upload.single('Photo'), async (request, response) => {
+  try {
+    const id = request.params.id;
+
+    // Check if a file is uploaded
+    if (!request.file) {
+      return response.status(400).json({ message: 'No photo provided' });
+    }
+
+    // Prepare updated photo data for the product
+    const updatedPhotoData = {
+      Photo: {
+        data: request.file.buffer,
+        contentType: request.file.mimetype,
+      }
+    };
+
+    // Find and update the product document
+    const result = await ProductModel.findByIdAndUpdate(id, updatedPhotoData);
+
+    // Handle result and send response
+    if (!result) {
+      return response.status(404).json({ message: 'Item not found' });
+    }
+    response.status(200).json({ message: 'Product photo updated successfully', data: result });
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+app.get('/adminproductview', async (request, response) => {
+  try {
+      const result = await ProductModel.aggregate([
+          {
+              $lookup: {
+                  from: 'categories',
+                  localField: 'Cid',
+                  foreignField: '_id',
+                  as: 'category',
+              },
+          },
+          {
+              $lookup: {
+                  from: 'sellers',
+                  localField: 'seller',
+                  foreignField: '_id',
+                  as: 'seller',
+              },
+          },
+      ]);
+
+      // Log the result to the console
+  ;
+
+      response.send(result);
+  } catch (error) {
+      console.error(error);
+      response.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+app.delete('/premove/:id', async (request, response) => {
+  const {id }= request.params;
+  try {
+   
+    const deletedProduct = await ProductModel.findByIdAndDelete(id);
+    console.log('Deleted product:', deletedProduct);
+    if (!deletedProduct) {
+      return response.status(404).json({ error: 'Product not found' });
+    }
+    response.json({ message: 'Product removed successfully' });
+  } catch (error) {
+    console.error('Error removing product:', error); // Log the specific error
+    response.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 
     app.get('/userallproduct',async(request,response)=>{

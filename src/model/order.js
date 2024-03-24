@@ -14,7 +14,6 @@ const orderSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Seller', 
     required: true
-
   },
   productName: String,
   productPrice: Number,
@@ -24,7 +23,8 @@ const orderSchema = new Schema({
     type: String,
     enum: ['Order', 'Delivered', 'Ordered', 'Shipping', 'Cancelled', 'Pending'],
     default: 'Order' // Set your default status
-  }
+  },
+  orderDate: { type: Date, default: Date.now }
 });
 
 const OrderModel = mongoose.model('Order', orderSchema);

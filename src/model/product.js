@@ -5,7 +5,8 @@ const { Schema } = mongoose;
 const productSchema = new Schema({
   sellerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Seller" // Assuming "Seller" is the name of your seller model
+    ref: "Seller" ,// Assuming "Seller" is the name of your seller model
+    required: true
   },
   Photo: {
     data: Buffer,

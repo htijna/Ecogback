@@ -84,6 +84,35 @@ router.get('/sellerprofile', async (req, res) => {
   }
 });
 
+//sellerprofileedit
+router.put('/editseller/:id', async (req, res) => {
+  try {
+    const sellerId = req.params.id; // Get the seller ID from request params
+    const { name, email, phone, address } = req.body;
+
+    // Check if the seller exists
+    const seller = await Seller.findById(sellerId);
+    if (!seller) {
+      return res.status(404).json({ error: 'Seller not found' });
+    }
+
+    // Update the seller's profile fields
+    seller.name = name;
+    seller.email = email;
+    seller.phone = phone;
+    seller.address = address;
+
+    // Save the updated user
+    const updatedSeller = await seller.save();
+
+    res.json({ message: 'User profile updated successfully', seller: updatedSeller });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 // Get all sellers
 router.get('/sellerlog', async (req, res) => {
   try {

@@ -23,7 +23,7 @@ const sellerorderSchema = new Schema({
     type: String,
     enum: ['Order', 'Delivered', 'Ordered', 'Shipping', 'Cancelled', 'Pending'],
     default: 'Order' // Set your default status
-  }
+  }, orderDate: { type: Date, default: Date.now }
 });
 
 const SellerorderModel = mongoose.model('Sellerorder', sellerorderSchema);

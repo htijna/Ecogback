@@ -6,7 +6,7 @@ const User = require('../model/User');
 
 router.post('/orderseller', async (req, res) => {
     try {
-      const { productId,userId,sellerId, productName, productPrice, productDescription, productQuantity, status } = req.body;
+      const { productId,userId,sellerId, productName, productPrice, productDescription, productQuantity, status,orderDate } = req.body;
       
       // Check if productId is provided
       if (!productId) {
@@ -14,7 +14,8 @@ router.post('/orderseller', async (req, res) => {
       }
 
       // Create a new order
-      const newItem = new SellerorderModel({ productId,
+      const newItem = new SellerorderModel({
+         productId,
         userId,
         sellerId,
          productName,
@@ -22,7 +23,7 @@ router.post('/orderseller', async (req, res) => {
            productDescription,
          productQuantity,
           status , 
-           orderDate: Date.now(),
+           orderDate,
            });
 
            await newItem.save();

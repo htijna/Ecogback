@@ -71,7 +71,9 @@ router.delete('/clear', async (req, res) => {
 
 
 
-router.put('/cart/increment/:id', async (req, res) => {
+
+// Increment quantity of a cart item
+router.put('/increment/:id', async (req, res) => {
   try {
       const { id } = req.params;
       // Find the cart item by its ID and increment its quantity
@@ -83,8 +85,9 @@ router.put('/cart/increment/:id', async (req, res) => {
   }
 });
 
+
 // Decrement quantity of a cart item
-router.put('/cart/decrement/:id', async (req, res) => {
+router.put('/decrement/:id', async (req, res) => {
   try {
       const { id } = req.params;
       // Find the cart item by its ID and decrement its quantity, ensuring it doesn't go below 1
