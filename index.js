@@ -12,7 +12,7 @@ const ordersRouter = require('./src/routes/orders');
 const emailRouter = require('./src/routes/getemail');
 const addcartRouter =require('./src/routes/addcart');
 const sellerviewRouter =require('./src/routes/sellervieworder');
-
+const addwishlistRouter =require('./src/routes/addwishlist')
 const app = express();
 
 // Middleware
@@ -35,6 +35,7 @@ app.use('/ordered', ordersRouter);
 app.use('/email', emailRouter);
 app.use('/cart', addcartRouter);
 app.use('/sellerview',sellerviewRouter);
+app.use('/wish',addwishlistRouter)
 
 app.listen(5000, () => {
   console.log('Server is running on port 5000');

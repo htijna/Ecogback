@@ -14,7 +14,6 @@ const productSchema = new Schema({
   },
   Productname: String,
   Productprice: Number,
-  Quantity: String,
   Description: String,
   Cid: {
     type: mongoose.Schema.Types.ObjectId,

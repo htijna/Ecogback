@@ -113,17 +113,27 @@ router.put('/editseller/:id', async (req, res) => {
 });
 
 
-// Get all sellers
 router.get('/sellerlog', async (req, res) => {
   try {
-    const data = await Seller.find();
-    res.send(data);
+    const { searchQuery } = req.query;
+    let query = {};
+
+    // If there is a search query for the seller's name, construct a case-insensitive regex for searching
+    if (searchQuery) {
+      query = {
+        name: { $regex: new RegExp(searchQuery, 'i') } // Search by seller name only
+      };
+    }
+
+    // Find sellers based on the constructed query
+    const sellers = await Seller.find(query);
+
+    res.status(200).json(sellers);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-
 module.exports = router;
 
 

@@ -15,7 +15,6 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
             sellerId,
             Productname,
             Productprice,
-            Quantity,
             Cid,
             Status,
             Description
@@ -36,7 +35,6 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
             sellerId, // Assigning the seller ID to the product
             Productname,
             Productprice,
-            Quantity,
             Cid,
             Status,
             Description,
@@ -58,10 +56,10 @@ app.post('/productnew', upload.single('Photo'), async (req, res) => {
 
 
 
-    app.put('/delete/:id',async(request,response)=>{
+    app.put('/inactive/:id',async(request,response)=>{
         let id = request.params.id
         await ProductModel.findByIdAndUpdate(id,{$set:{Status:"Inactive"}})
-        response.send("Record Deleted")
+        response.send("Record Inactive")
     })
 
     app.put('/active/:id',async(request,response)=>{
@@ -116,7 +114,6 @@ app.put('/editproduct/:id', upload.single('Photo'), async (request, response) =>
     const updatedData = {
       Productname,
       Productprice,
-      Quantity,
       Cid: new mongoose.Types.ObjectId(Cid), // Convert Cid to ObjectId
       Status,
       Description
@@ -180,35 +177,83 @@ app.put('/editphoto/:id', upload.single('Photo'), async (request, response) => {
 
 app.get('/adminproductview', async (request, response) => {
   try {
-      const result = await ProductModel.aggregate([
-          {
-              $lookup: {
-                  from: 'categories',
-                  localField: 'Cid',
-                  foreignField: '_id',
-                  as: 'category',
-              },
+    const searchTerm = request.query.search;
+    let result;
+    if (searchTerm) {
+      // If search term exists, filter products based on the search term
+      result = await ProductModel.aggregate([
+        {
+          $match: {
+            Productname: { $regex: new RegExp(searchTerm, 'i') } // Case-insensitive search
+          }
+        },
+        {
+          $lookup: {
+            from: 'categories',
+            localField: 'Cid',
+            foreignField: '_id',
+            as: 'category',
           },
-          {
-              $lookup: {
-                  from: 'sellers',
-                  localField: 'seller',
-                  foreignField: '_id',
-                  as: 'seller',
-              },
+        },
+        {
+          $lookup: {
+            from: 'sellers',
+            localField: 'seller',
+            foreignField: '_id',
+            as: 'seller',
           },
+        },
       ]);
+    } else {
+      // If no search term, fetch all products
+      result = await ProductModel.aggregate([
+        {
+          $lookup: {
+            from: 'categories',
+            localField: 'Cid',
+            foreignField: '_id',
+            as: 'category',
+          },
+        },
+        {
+          $lookup: {
+            from: 'sellers',
+            localField: 'seller',
+            foreignField: '_id',
+            as: 'seller',
+          },
+        },
+      ]);
+    }
 
-      // Log the result to the console
-  ;
-
-      response.send(result);
+    response.send(result);
   } catch (error) {
-      console.error(error);
-      response.status(500).json({ error: 'Internal Server Error' });
+    console.error(error);
+    response.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
+
+app.get('/search', async (req, res) => {
+  try {
+      const searchQuery = req.query.query; // Retrieve the search query from request query parameters
+      if (!searchQuery) {
+          return res.status(400).json({ message: 'Search query is required' });
+      }
+
+      // Perform case-insensitive search for products with Productname containing the search query
+      const products = await ProductModel.find({ Productname: { $regex: new RegExp(searchQuery, 'i') } });
+
+      if (products.length === 0) {
+          return res.status(404).json({ message: 'No products found matching the search query' });
+      }
+
+      res.status(200).json(products);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 app.delete('/premove/:id', async (request, response) => {
   const {id }= request.params;
@@ -228,20 +273,51 @@ app.delete('/premove/:id', async (request, response) => {
 
 
 
-    app.get('/userallproduct',async(request,response)=>{
-        const result = await ProductModel.aggregate([
-            {
+app.get('/userallproduct', async (request, response) => {
+  try {
+      const result = await ProductModel.aggregate([
+          {
               $lookup: {
-                from: 'categories', // Name of the other collection
-                localField: 'Cid', // field of item
-                foreignField: '_id', //field of category
-                as: 'prod',
+                  from: 'categories', // Name of the other collection
+                  localField: 'Cid', // field of item
+                  foreignField: '_id', //field of category
+                  as: 'prod',
               },
-            },
-          ]);
-        
-          response.send(result)
-        })
+          },
+          {
+              $match: {
+                  Status: "Active" // Filter only active products
+              }
+          }
+      ]);
+      
+      response.send(result);
+  } catch (error) {
+      response.status(500).json({ message: error.message });
+  }
+});
+
     
-    
+        app.get('/search', async (request, response) => {
+          try {
+              const searchQuery = request.query.query; // Retrieve the search query from request query parameters
+              if (!searchQuery) {
+                  return response.status(400).json({ message: 'Search query is required' });
+              }
+      
+              // Perform case-insensitive search for products with Productname containing the search query
+              const products = await ProductModel.find({ Productname: { $regex: new RegExp(searchQuery, 'i') } });
+      
+              if (products.length === 0) {
+                  return response.status(404).json({ message: 'No products found matching the search query' });
+              }
+      
+              response.status(200).json(products);
+          } catch (error) {
+              console.error(error);
+              response.status(500).json({ error: 'Internal Server Error' });
+          }
+      });
+      
+
 module.exports = app;

@@ -113,10 +113,21 @@ router.put('/edituser/:id', async (req, res) => {
 
 
 // Get all users (Just for testing, consider removing it or protecting it in production)
+// Get all users or search for users by name
 router.get('/userlog', async (req, res) => {
   try {
-    const data = await User.find();
-    res.send(data);
+    const { name } = req.query;
+    let query = {};
+
+    // If there is a name query, construct a case-insensitive regex for searching
+    if (name) {
+      query = { name: { $regex: new RegExp(name, 'i') } };
+    }
+
+    // Find users based on the constructed query
+    const users = await User.find(query);
+
+    res.status(200).json(users);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });

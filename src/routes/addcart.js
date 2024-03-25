@@ -72,6 +72,7 @@ router.delete('/clear', async (req, res) => {
 
 
 
+
 // Increment quantity of a cart item
 router.put('/increment/:id', async (req, res) => {
   try {
