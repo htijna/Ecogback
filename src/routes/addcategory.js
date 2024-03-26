@@ -41,28 +41,42 @@ router.get('/categoryview', async (request, response) => {
   }
 });
 
-router.put('/inactive/:id', async (request, response) => {
-  try {
-    const id = request.params.id;
-    await CategoryModel.findByIdAndUpdate(id, { $set: { Status: "Inactive" } });
-    response.send("Record Deleted");
-  } catch (error) {
-    console.error(error);
-    response.status(500).json({ error: 'Internal Server Error' });
-  }
-});
 
-router.put('/active/:id', async (request, response) => {
-  try {
-    const id = request.params.id;
-    await CategoryModel.findByIdAndUpdate(id, { $set: { Status: "Active" } });
-    response.send("Record Active");
-  } catch (error) {
-    console.error(error);
-    response.status(500).json({ error: 'Internal Server Error' });
-  }
+router.put('/inactive/:id',async(request,response)=>{
+  let id = request.params.id
+  await CategoryModel.findByIdAndUpdate(id,{$set:{Status:"Inactive"}})
+  response.send("Record Inactive")
+})
 
-});
+router.put('/active/:id',async(request,response)=>{
+  let id = request.params.id
+  await CategoryModel.findByIdAndUpdate(id,{$set:{Status:"Active"}})
+  response.send("Record Active")
+})
+
+
+
+// router.put('/inactive/:id', async (request, response) => {
+//   try {
+//     const id = request.params.id;
+//     await CategoryModel.findByIdAndUpdate(id, { $set: { Status: "Inactive" } });
+//     response.send("Record Inactivated");
+//   } catch (error) {
+//     console.error(error);
+//     response.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
+
+// router.put('/active/:id', async (request, response) => {
+//   try {
+//     const id = request.params.id;
+//     await CategoryModel.findByIdAndUpdate(id, { $set: { Status: "Active" } });
+//     response.send("Record Activated");
+//   } catch (error) {
+//     console.error(error);
+//     response.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
 
 router.put('/cedit/:id',async(request,response)=>{
   let id = request.params.id
